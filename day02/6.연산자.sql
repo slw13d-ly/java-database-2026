@@ -45,3 +45,18 @@ SELECT *
 SELECT *
   FROM customer 
  WHERE city IS NULL;
+
+-- 문제 1
+SELECT *
+  FROM EMPLOYEE e 
+
+
+-- 문제 2
+SELECT cust_name AS "고객이름"
+     , reg_date AS "가입일"
+     , city
+  FROM customer e 
+ WHERE e.city = 'Seoul'
+ ORDER BY e.reg_date DESC;
+
+-- 문제 3
