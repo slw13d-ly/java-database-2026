@@ -471,10 +471,11 @@ SQL> alter session set nls_date_format='dd-MON-rr';
 
 ### DML
 
-- SQL문은 DML, DDL, DCL 구성
+- SQL문은 DML, DDL, DCL, TCL 구성
     - Data Manipulation Language
     - Data Definition Language
     - Data Control Language
+    - Transaction Control Language
 
 - DML
     - 데이터 조작 언어 - 데이터를 추가, 변경, 삭제, 조회하는 쿼리 명령어
@@ -492,3 +493,244 @@ SQL> alter session set nls_date_format='dd-MON-rr';
     - `DELETE` - 삭제용. 조심할 것!
     - SELECT는 저장된 데이터에 조작이 없음. 그 외는 전부 데이터를 조작함
     - SELECT는 트랜잭션이 없고, 나머지는 트랜잭션이 매우 중요!
+
+## Day05
+
+### DML 계속
+
+- DML
+    - `INSERT` - 데이터 생성 - [쿼리](./day05/1.DML계속.sql)
+
+            ```sql
+            -- SELECT 결과를 그대로 테이블에 추가 가능
+            INSERT INTO 테이블명 (열1, 열2, ... , 열n)
+            SELECT 열1, 열2, ... , 열n
+            [WHERE 조건절]
+            [기타 SELECT 문]
+            ```
+        
+    - `UPDATE` - 데이터 수정 - [쿼리](./day05/2.UPDATE_DELETE.sql)
+        - 기본 문법의 WHERE절은 무조건 작성할 것! WHERE절 없는 수정문은 조심할 것!
+
+        ```sql 
+        -- 기본 문법
+        UPDATE 변경할 테이블
+           SET 변경열1 = 열1변경값,  변경열2 = 열2변경값, ... -- 모든 열을 다 추가할 필요 없음
+         WHERE 데이터 변경 대상 행을 선별하기 위한 조건 -- 매우 중요!
+         ```
+    
+    - `DELETE` - 데이터 삭제
+        - WHERE 절을 빼는 경우 정말 조심할 것! 
+
+        ```sql
+        DELETE FROM 테이블
+         WHERE 삭제할 대상행 선별하는 조건 -- 매우 중요!
+        ```
+
+### TCL
+
+- 트랜잭션 - [쿼리](./day05/3.트랜잭션.sql)
+    - 논리적으로 처리되는 쿼리들의 집합
+    - 여러개의 테이블에 조회, 수정, 삭제 등이 이뤄지는 논리 덩어리
+    - ALL or Nothing
+
+- 트랜잭션 명령어 - Oracle은 트랜잭션을 시작하는 `BEGIN TRAN[SACION]`이 없음
+    - 첫번째 쿼리부터 트랜잭션이 시작됨
+    - DBeaver의 경우 메뉴 데이터베이스 > 트랜잭션 모드 > `Manual Commit`으로 변경
+    - 환경설정 > 연결 > 연결 유형 > `Auto-commit by default`를 해제
+
+    ![alt text](image.png)
+
+    ![alt text](image-1.png)
+
+- 트랜잭션 명령어
+    - `COMMIT` - 영구 반영
+    - `ROLLBACK` - 트랜잭션 취소
+    - `SAVEPOINT` - 트랜잭션 중간 저장
+
+- 세션
+    - 하나의 연결로 접속해서 종료까지 기간
+
+- 락
+    - 세션별로 트랜잭션이 문제발생 않도록 데이터를 잠그는 처리
+
+### DDL
+
+- 데이터 정의어
+    - 데이터베이스 객체 생성, 변경, 삭제하는 명령어
+
+- DDL 명령어 - [쿼리](./day05/5.DDL.sql)
+    - `CREATE` - 객체 생성. 대부분 테이블 생성 시 사용
+
+        ```sql
+        -- 기본문법
+        CREATE [TABLE|DATABASE|VIEW|INDEX|...] [객체 생성시 필요한 문법];
+
+        -- 테이블 생성
+        CREATE TABLE 소유자. 테이블명 (
+            열1이름 자료형,
+            열2이름 자료형,
+            ...
+            열n이름 자료형[,]
+
+            [각 제약조건]
+        );
+        ```
+
+    - `ALTER` - 객체 수정. 생성과 달리 수정할 수 있는 객체가 많이 없음
+            
+        ```sql
+        -- 테이블 생성
+        ALTER TABLE 테이블명 (
+            ADD 열이름 자료형,
+            RENAME COLUMN 이전 열이름 TO 새 열이름;
+            MODIFY 열이름 변경자료형;
+            DROP COLUMN 삭제할 열이름;
+        );
+
+    - `DROP` - 객체 삭제. ALTER와 달리 대부분 객체에서 사용가능
+
+        ```sql 
+        DROP 객체타입 객체명
+        ```
+
+    - `RENAME` - 객체 이름변경, 자주 사용 안 함
+
+        ```sql 
+        RENAME 이전 객체명 TO 새 객체명
+        ```
+
+    - `TRUNCATE` - 객체 내 데이터 모두 삭제. 대부분 테이블에서 진행
+
+        ```sql
+        -- DELDTE FROM 테이블명과 동일, 단 트랜잭션이 발생하지 않아 복구 불가
+        -- 테이블 생성 이후 상태가 됨
+        TRUNCATE TABLE 테이블명
+        ```
+## Day06
+
+### DDL
+
+- DDL 명령어 계속  - [쿼리](./day06/1.DDL.sql)
+    - 5일차와 동일
+
+### 객체 
+
+- [쿼리](./day06/2.Object.sql)
+
+- 데이터 사전 - 일반 테이블 외 DB를 운영하는 데 필요한 특수한 테이블
+    - USER_XXXX - 현재 DB에 접속한 사요자가 소유한 객체 정보
+    - ALL_XXXX - 사용허가를 받은 객체 정보
+    - DBA_XXXX - DB 관리를 위한 정보(SYSTEM, SYS 사용자만 접근가능) 
+    - V$_XXXX - DB 성능관련 정보
+
+- 인덱스 
+    - `Full Table Scan` - 모든 테이블 데이터를 처음부터 끝까지 찾아서 데이터 조회
+    - Index Scan - 인덱스를 찾아서 해당 데이터를 조회
+    - 실제 DB의 5% 용량이 추가됨. 인덱스 데이터를 저장하므로
+    - 일정 시간마다 인덱스를 재정리. 데이터 쌓여가는 중간에도 재정리(시간소요)
+    - 보통 SELECT WHERE절에서 자주 필터링 되는 컬럼에 인덱스를 걸면 속도개선
+    - 대용량 데이터 (대략 몇천만건)에서 속도개선을 위해서 인덱스 사용
+
+        ```sql
+        -- 기본 문법
+        CREATE INDEX 인덱스명
+            ON 테이블명 (인덱스열1 ASC|DESC,
+                            인덱스열2 ASC|DESC,
+                            ... );
+
+        -- 삭제
+        DROP INDEX 인덱스명;
+        ```
+
+- 인덱스 종류
+    - `단일` 인덱스 - 하나의 컬럼에 거는 인덱스
+    - `복합` 인덱스 - 두개이상 컬럼에 거는 인덱스
+    - `고유` 인덱스 - 열에 중복 데이터가 없을때 사용
+    - `비고유` 인덱스 - 열에 중복 되는 데이터가 있을때
+    - 함수기반 인덱스 - 산술식등으로 가공된 값을 인덱스로 사용 (연봉: SAL*12+COMM)
+    - 비트맵 인덱스 - 데이터종류는 적고 같은 데이터가 많이 존재할때 사용하는 인덱스
+
+- 뷰
+    - 가상테이블을 만드는 객체
+    - 물리적인 데이터를 따로 저장하지 않음
+    - SELECT문의 복잡한 쿼리를 저장해서 간단하게 사용
+    - 테이블 특정 컬럼(민감한 급여, 보너스, 주민번호)을 노출하지 않을 경우
+    - `주의!` 보기위한 객체지만 한 테이블의 SELECT * 인 뷰 경우 INSERT 가능
+
+        ```sql
+        -- 기본 문법
+        CREATE [OR REPLACE] VIEW 뷰이름 
+            AS (저장할 SELECT문)
+
+        -- 삭제
+        DROP VIEW 뷰이름;
+        ```
+
+- 시퀀스
+    - 오라클에만 존재하는 객체
+    - 순번을 자동으로 매겨주는 기능
+
+        ```sql
+        -- 생성
+        CREATE SEQUENCE 시퀀스명
+        START WITH n
+        INCREMENT BY p
+        [MAXVALUE m | NOMAXVALUE]  -- NOMAXVALUE 10의 27승
+        [MINVALUE o | NOMINVALUE]
+        [CYCLE | NOCYCLE]
+        [CACHE r | NOCACHE]
+
+        -- 수정
+        ALTER SEQUENCE 시퀀스명
+        -- START WITH 이외 모두 사용가능
+
+        -- 삭제
+        DROP SEQUENCE 시퀀스명
+        ```
+
+- 동의어 - 생략
+
+### 제약조건
+
+- 제약조건 - [쿼리](./day06/3.제약조건.sql)
+    - 테이블에 저장할 데이터를 정확하게 규제하는 특수한 규칙
+    - 조건에 맞지 않는 데이터를 걸러내는 기능
+
+- 종류
+    - `NOT NULL` - 지정한 열에 NULL을 허용하지 않음. 무조건 데이터 입력
+        - 데이터 중복 허용
+    - `UNIQUE` - 지정한 열에 유일한 값이 되어야함. 중복불가
+        - NULL은 중복에서 제외
+    - `PRIMARY KEY` - 지정한 열에 유일한 값이면서 NULL을 허용하지 않음. 
+        - PK라고 하고, PK는 `UNIQUE`에 `NOT NULL `
+        - PK를 지정하면 자동으로 UNIQUE 인덱스가 생성. 
+    - `FOREIGN KEY` - 다른 테이블의 PK열을 참조하여 PK열에 존재하는 값만 입력가능    
+        - FK라고 하고, 설계에 따라 NOT NULL(식별관계)일 수도 있고 NULL(비식별관계) 일수도 있음
+        - 자식테이블에서 PK로 지정 가능. 일반 컬럼으로 FK로만 지정 가능
+    - `CHECK` - 설정한 조건식에 일치하는 데이터만 입력 가능        
+    - `DEFAULT` - 열에 데이터를 입력하지 않았을때 기본값이 자동 입력
+
+- 데이터 무결성 
+    - DB에 저장되는 데이터의 정확성과 일관성을 보장한다는 의미
+    - 영역 무결성(적절한 형식의 데이터나 NULL 불가), 개체 무결성(PK개념), 참조 무결성(FK개념)
+
+- CASCADE 계단식처리
+    - 부모 테이블의 PK 컬럼 해당데이터를 지우면 자식 테이블의 FK에 참조중인 레코드를 전부 지우는 기능
+    - ON DELETE CASCADE - 부모 테이블 데이터를 지우면 자식 데이터도 자동 삭제
+    - ON DELETE SET NULL - 부모 테이블 데이터를 지우면 자식 FK 데이터가 자동 NULL      
+
+
+## Day07
+
+### 사용자, 권한, 롤
+
+### PL/SQL 
+
+### 커서, 예외처리
+
+### 프로시저, 함수
+
+### 파이썬 오라클 연동
+
+### DB설계
