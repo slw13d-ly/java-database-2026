@@ -587,6 +587,7 @@ SQL> alter session set nls_date_format='dd-MON-rr';
             MODIFY 열이름 변경자료형;
             DROP COLUMN 삭제할 열이름;
         );
+        ```
 
     - `DROP` - 객체 삭제. ALTER와 달리 대부분 객체에서 사용가능
 
@@ -725,12 +726,263 @@ SQL> alter session set nls_date_format='dd-MON-rr';
 
 ### 사용자, 권한, 롤
 
-### PL/SQL 
+- DS용어
+    - shema(스키마) - DB객체, 사용자, 제약조건 등을 그룸으로 관리하는 단위. 타 DB에서는 일반적으로 데이터베이스
+    - 오라클에서는 사용자를 생성하면 `사용자묭과 동일한 스키마가 만들어짐`
 
+- 사용자 생성 - [쿼리](./day07/1.사용자권한.sql)
+
+    ```sql
+    -- 기본으로 항상 아래와 같이 생성할 것
+    CREATE USER 사용자명
+    IDENTIFIED BY 패스워드 -- 패스워드는 대소문자 구분, 특수문자가 포함되면 ""로 감쌀것
+    DEFAULT TABLESPACE USERS
+    TEMPORARY TABLESPACE TEMP
+    QUOTA UNLIMITED ON USERS;
+
+    -- 새로 생성한 사용자는 최소 접속권한을 줘야 함
+    GRANT CREATE SESSION TO 사용자명; 
+
+    -- 비밀번호 변경
+    ALTER USER 사용자명
+    IDENTIFIED BY 변경할 패스워드
+
+    -- 사용자 삭제, 접속 중인 세션을 종료해야 삭제 가능
+    DROP USER 사용자명 CASCADE; 
+    ```
+
+- 사용자 권한
+    - 특정한 권한을 사용자에게 할당하는 것
+    - USER, SESSION, TABLE, INDEX, VIEW, SEQUENCE, ... 등 객체 별로 생성, 변경, 삭제 등 권한을 각각 부여 가능
+    - 특히 TABLE은 INSERT, SELECT, UPDATE, DELETE의 DML 권한도 따로 부여 가능
+
+    ```sql
+    -- 권한 부여
+    GRANT 시스템 권한 TO 사용자
+    [WITH ADMIN OPTION]; -- 사용자 받은 권한을 다른 사용자에게 부여할 수 있는 옵션
+
+    -- 권한 해제
+    REVOKE 시스템 권한 FROM 사용자;
+    ```
+    - 새로 생성한 사용자에게 아무런 권한도 부여하지 않으면 접속도 불가
+    ![alt text](day07/image.png)
+
+- 롤
+    - 사용자 권한 종류를 각 객체별로 전부 지정하면 너무 많은 지정이 필요
+    - 여러 권한을 한꺼번에 가지는 객체 생성한 것이 룰
+    - `CONNECT`, `RESOURCE`, `DBA` 등
+
+    ```sql
+    -- 롤 생성
+    CREATE ROLE 롤이름;
+
+    -- 롤에 권한 부여
+    GRANT CONNECT, RESOURCE, CREATE VIEW, CREATE SYNONYM, ...
+    TO 롤이름;
+
+    -- 롤을 사용자에게 부여, 롤 해제는 REVOKE로 동일
+    GRANT 롤이름 TO 사용자명;
+
+    -- 롤 해제
+    DROP ROLE 롤이름;
+    ```
+
+### PL/SQL
+
+- 개요
+    - SQL문만 사용해서 해결하기 어려운 작업들이 존재
+    - 프로그래밍 기법 사용해서 문제를 해결 → PL/SQL
+    - 모든 DB가 프로그래밍이 가능
+    - PL/SQL이라는 용어 Oracle에서만 사용
+
+- PL/SQL - [쿼리](./day07/3.plsql_first.sql)
+    - Oracle에서 사용하는 프로그래밍 기법
+
+    ```sql
+    -- 기본 문법
+    DECLARE
+        [실행에 필요한 요소 선언]; -- 대부분 변수 선언
+    BEGIN
+        [작업용 실행 명령어];
+    EXCEPTION
+        [PL/SQL 도중 발생하는 예외처리];
+    END;
+    ```
+- 변수 선언
+    - 일반 변수, 상수, 참조형, 참조행
+
+    ```sql
+    DECLARE
+        변수명 변수타입 [:= 값 할당];
+    ```
+
+- 조건 제어문 - [쿼리](./day07/4.IF문.sql)
+    ```sql
+    IF 조건식1 THEN
+        수행할 명령어;
+    ELSIF 조건식2 THEN
+        수행할 명령어;
+    ...
+    ELSE
+        수행할 명령어;
+    END IF;
+
+    -- IF문은 CASE WHEN THEN으로 변경 가능 
+    ```
+
+- 반복문 - [쿼리](./day07/5.반복문.sql)
+
+    ```sql
+    -- 반복문
+    LOOP
+        반복수행 작업 명령어;
+    END LOOP;
+
+    -- FOR LOOP
+    FOR i IN 1..10 LOOP
+        반복수행 명령어
+    END LOOP
+
+    -- 반복문 내 CONTINUE, BREAK
+        FOR V_NUM IN 1..100 LOOP
+      CONTINUE WHEN MOD(V_NUM, 2) = 1; -- 짝수면 CONTINUE
+        DBMS_OUTPUT.PUT_LINE('V_NUM => ' || V_NUM);
+        EXIT WHEN V_NUM > 100; -- BREAK;
+    END LOOP;
+    ```
 ### 커서, 예외처리
 
-### 프로시저, 함수
+- 예외처리 - [쿼리](./day07/6.예외처리.sql)
+    - 오류 - 코드 상 문법 상 오류. 에러(Error)
+    - 예외 - 실행 중 발생하는 오류. 예외(Exception)
+    - RAISE - 예외 생성 (추후학습 필요)
+
+    ![alt text](day07/image1.png)
+
+    ```sql
+    DECLARE
+        선언
+    BEGIN
+        실행 명령어들;
+    EXCEPTION
+        WHEN ... THEN
+            예외처리 구문;
+        WHEN OTHERS THEN
+        	DBMS_OUTPUT.PUT_LINE('예외 발생');
+            DBMS_OUTPUT.PUT_LINE(to_char(SQLCODE));
+		    DBMS_OUTPUT.PUT_LINE(SQLERRM);
+    END;
+    ```
+- **레코드**, **컬렉션** (추후학습 필요)
+    - 한번에 여러 데이터 관리하는 레코드 선언
+
+- 커서 - [쿼리](./day07/7.커서.sql)
+    - 테이블 등에서 데이터 현재위치를 가리키는 메모리 위치
+    - DECLARE에 선언
+
+### 저장 서브프로그램
+
+- 개요
+    - 위의 PL/SQL은 일회성
+    - 저장 서브프로그램 - 오라클에 저장해두고 계속 사용하려는 객체
+
+- 종류
+    - `저장 프로시저` - 특정 처리 작업 수행을 위한 서브프로그램으로 SQL문 상에서 사용불가. 스케줄 등에 큰 배치작업에 활용
+    - `함수` - 특정 연산 결과를 반환하는 서브프로그램. SQL문에서 사용가능. 내장함수와 동일
+    - 패키지 - 저장 프로그램의 그룹화. 파이썬 라이브러리와 동일
+    - `트리거` - DB의 강력한 기능. 특정 상황 발생 시 자동으로 연달아 수행하는 기능 구현
+
+- 저장 프로시저 - [쿼리](./day07/8.저장서브프로그램1.sql)
+    - 보통 프로시저로 호칭
+    - 파이썬에서 리턴없는 함수와 유사. 다른 SQL문에서 사용불가! 
+    - DBEAVER에서는 스키마 procedures 폴더에서 Create New procedure 메뉴로 생성할 것
+
+    ```sql
+    -- 기본문법
+    CREATE [OR REPLACE] PROCEDURE 프로시저명
+    [(파라미터1 자료형 ... ,
+      파라미터2 자료형 ... .
+      ...
+      파라미터n 자료형)]
+    AS 
+        선언부
+    BEGIN
+        실행부
+    EXCEPTION
+        예외처리부
+    END 프로시저명;
+    
+    -- 삭제
+    DROP PROCEDURE 프로시저명
+    ```
+
+    - 프로시저 실행
+
+    ```sql
+    CALL 프로시저명([파라미터]);
+
+    EXECUTE 프로시저명([파라미터]); -- ?
+    ```
+- 함수 - [쿼리](./day07/11.함수.sql)
+    - 파이썬 리턴 있는 함수와 동일. 다른 SQL문에서 사용 가능
+    - 내장함수, UPPER(), LOWER(), SYSDATE 등에 원하는 기능이 없으면 직접 함수 구현
+
+    ```sql
+    -- function 생성
+    CREATE OR REPLACE FUNCTION FNC_AFTERTAX(
+        sal IN number
+    ) RETURN NUMBER
+    IS
+        tax NUMBER := 0.05;
+    BEGIN
+	RETURN round(sal - (sal * tax));
+    END FNC_AFTERTAX;
+
+    -- 함수 삭제
+    DROP FUNCTION 함수명;
+    ```
+
+- 패키지
+    - 관련있는 함수나 프로시저 등의 객체를 그룹화 시키는 개체
+    - 파이썬의 라이브러리와 동일
+
+    ```sql
+    CREATE OR REPLACE PACKAGE 패키지명
+    IS
+        FUNCTION fnc_aftertax(sal NUMBER) return NUMBER;
+        PROCEDURE prc_noparam();
+        PROCEDURE prc_param(in_empno IN emp.empno%type);
+    END;
+
+    -- 사용
+    패키지명.fnc_aftertax(5000);
+    ```
+
+- 트리거 - [쿼리](./day07/13.트리거생성.sql)
+    - 여러 작업을 일일이 실행하는 것보다 효율적으로 처리
+    - 무분별하게 많이 사용하면 데이터베이스 성능을 저하시킴
+    - INSERT, UPDATE, DELETE 등 트랜잭션 상황에서 많이 사용
+
+    ```sql
+    CREATE OR REPLACE TRIGGER 트리거명
+    BEFORE | AFTER
+    INSERT | UPDATE | DELETE ON 테이블명
+    REFERENCING OLD AS old | NEW as new
+    FOR EACH ROW WHEN 조건식
+    FOLLOW 트리거명, ...
+    ENABLE
+
+    DECLARE
+        선언부
+    BEGIN
+        실행부
+    EXCEPTION
+        예외처리부
+    END;
+    ```
 
 ### 파이썬 오라클 연동
+
+### DBEAVER 툴 사용법
 
 ### DB설계
