@@ -527,6 +527,27 @@ SQL> alter session set nls_date_format='dd-MON-rr';
          WHERE 삭제할 대상행 선별하는 조건 -- 매우 중요!
         ```
 
+    - `MERGE` - INSERT와 UPDATE를 스마트하게 처리하는 쿼리 (추후 반드시 추가 공부)
+        - PK가 존제하면 UPDATE, PK값이 없으면 INSERT
+
+        ```sql
+        -- 예. EMP 테이블에 같은 empno 값이 있을 때와 없을 때 다르게 수행
+        MERGE INTO SCOTT.EMP AS tgt
+        USING SOURCE_TABLE AS src
+           ON (tgt.EMPNO=src.EMPNO)
+         WHEN MATCHED
+         THEN UPDATE SET
+              tgt.ENAME=src.ENAME
+            , tgt.JOB=src.JOB
+            , tgt.MGR=src.MGR
+            , tgt.HIREDATE=src.HIREDATE
+            , tgt.SAL=src.SAL
+            , tgt.COMM=src.COMM
+            , tgt.DEPTNO=src.DEPTNO
+         WHEN NOT MATCHED
+         THEN INSERT (EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO)
+              VALUES (src.EMPNO, src.ENAME, src.JOB, src.MGR, src.HIREDATE, src.SAL, src.COMM, src.DEPTNO);
+        ```
 ### TCL
 
 - 트랜잭션 - [쿼리](./day05/3.트랜잭션.sql)
@@ -981,8 +1002,89 @@ SQL> alter session set nls_date_format='dd-MON-rr';
     END;
     ```
 
+### DBEAVER 툴 사용법
+- 사용 이유
+    - DB개발툴을 잘 사용하면 복잡한 쿼리를 직접 만들지 않고 쉽게 작업할 수 있음
+    - SQL Plus(콘솔)에서 로그인 정보 항상 입력, 쿼리 작성 시 오타발생 가능 농후
+    - Content Assistant 등의 기능 쿼리 작성 도와줌
+
+- DBEAVER 세션별 그룹
+    - `Schemas` - 사용자가 만든 DB객체들 저장. 여기서 대부분의 작업 수행
+    - Global metadata - 전체 DB의 구조를 보여주는 곳
+    - Storage - 실제 물리적 저장소 정보
+    - Security - 사용자 계정에 관한 정보
+    - Administer - DB 운영관리, 세션관리, 락관리
+
+- Schemas 내
+    - 자신의 계정에 속한 스키마(굵은체)만 거의 작업하면 됨
+    - Tables, Views, Indexes, Sequence, Procedures, Function, Table Triggers 위주로만 작업
+
+- `Tables`
+    - 생성된 테이블에서 Columns, Constraints, Foreign Keys, Triggers, indexes, DDL 정도 작업
+    - Tables에서 마우스 오른쪽 버튼으로 컨텍스트 메뉴 중 `Create New Table`만 사용
+    - Columns 탭에서 `Create New Columns`으로 새 컴럼 생성. PK, UK, NOT NULL 지정 후 Save
+
+- Views
+    - `Create New View`로 새 뷰 생성
+    - 뷰 이름 입력 후 Declaration에서 SELECT 쿼리 작성 후 Save
+
+- Indexes
+    - 생성된 인덱스만 확인
+    - Tables > Create New Table, View Table에서 Indexes탭 내 `Create New Index`로 생성
+
+- Sequences - 나머지 객체와 독립적
+    - Create New Sequence로 시퀀스명 작성 후 생성.
+    - MAXVALUE, MINVALUE, INCREMENT 입력 후 저장
+
+- Procedures 
+    - Create New Procedure 후 창에서 이름 입력, 타입을 PROCEDURE로 선택 확인
+    - Declaration에서 PL/SQL 작성 후 저장, 실행
+    - PROCEDURE와 FUNCITON은 컴파일 되는 개체
+    - Indexes
+    - 생성된 인덱스만 확인
+    - Tables > Create New Table, View Table에서 Indexes탭 내 `Create New Index`로 생성
+
+- Sequences - 나머지 객체와 독립적
+    - Create New Sequence로 시퀀스명 작성 후 생성.
+    - MAXVALUE, MINVALUE, INCREMENT 입력 후 저장
+
+- Procedures 
+    - Create New Procedure 후 창에서 이름 입력, 타입을 PROCEDURE로 선택 확인
+    - Declaration에서 PL/SQL 작성 후 저장, 실행
+    - PROCEDURE와 FUNCITON은 컴파일 되는 개체
+    ![alt text](./day08/image.png)
+- Function
+    - 프로시저와 동일. 타입을 Function으로 선택
+
+- Table Triggers
+    - 생성된 트리거만 확인
+    - 테이블 Triggers 탭에서 Create New Trigger로 생성, Declaration에서 작성
+    - SQL 에디터에서 작성 
+
+- 팁
+    - 메뉴 > 데이터베이스 > 커밋, 롤백, 트랜잭션 모드 는 DB에 맞게 잘 사용할 것
+    - Ctrl + + : 글자크기 크게
+    - Ctrl + - : 글자크기 작게
+    - 툴바의 접속된 세션(현재, XE - Scott)확인, 사용중인 스키마(현재 SCOTT) 작업 도중 자주 확인
+    - `트랜잭션`은 UPDATE, DELETE 작업 전엔 반드시 확인하고 진행
+
+    ![alt text](./day08/image-1.png)
+
+    - 각 테이블 마우스오른쪽 버튼 > SQL 생성
+        - INSERT 부터 DDL까지 전부 존재
+        - 단, SELECT 문은 거의 효과가 없음. 너무 단순. 
+
 ### 파이썬 오라클 연동
 
-### DBEAVER 툴 사용법
+- 주피터노트북 사용
+    - VS CODE > 명령 팔레트 실행(Ctrl + shift + P)
+
+- 오라클 `CRUD` 연동 - [소스](./day08/1.오라클연동.ipynb)
+    - Create, Read, Update, Delete 약자
+    - INSERT, SELECT, UPDATE, DELETE 명령어와 1:1 매핑
+    - 실무에서 CRUD를 분리해서 지시 (CRU, R, CRUD ... )
+
+- BULK INSERT - [소스](./day08/2.BulkInsert.ipynb)
+    - 대용량 데이터 처리방법
 
 ### DB설계
