@@ -416,6 +416,7 @@ SQL> alter session set nls_date_format='dd-MON-rr';
 ### 조인(JOIN)
 
 - 조인 기본 - [쿼리](./day03/7.조인.sql)
+
 ---
 
 ## Day04
@@ -458,7 +459,7 @@ SQL> alter session set nls_date_format='dd-MON-rr';
     - 대부분 조인으로 변경 가능
     - 대부분 서브쿼리부터 작성 추천 
 
-- 서브쿼리 종류
+- 서브쿼리 종류 - [쿼리](./day04/3.서브쿼리.sql)
     - 단일행 서브쿼리 - >, >=, = <=, <, <>, ! = 비교연산자로 서브쿼리 사용
     - 다중행 서브쿼리 
         - IN - 메인쿼리 데이터가 서브쿼리 결과중 하나라도 일치하는 데이터가 있으면
@@ -493,6 +494,8 @@ SQL> alter session set nls_date_format='dd-MON-rr';
     - `DELETE` - 삭제용. 조심할 것!
     - SELECT는 저장된 데이터에 조작이 없음. 그 외는 전부 데이터를 조작함
     - SELECT는 트랜잭션이 없고, 나머지는 트랜잭션이 매우 중요!
+
+---
 
 ## Day05
 
@@ -629,6 +632,9 @@ SQL> alter session set nls_date_format='dd-MON-rr';
         -- 테이블 생성 이후 상태가 됨
         TRUNCATE TABLE 테이블명
         ```
+
+---
+
 ## Day06
 
 ### DDL
@@ -742,6 +748,7 @@ SQL> alter session set nls_date_format='dd-MON-rr';
     - ON DELETE CASCADE - 부모 테이블 데이터를 지우면 자식 데이터도 자동 삭제
     - ON DELETE SET NULL - 부모 테이블 데이터를 지우면 자식 FK 데이터가 자동 NULL      
 
+---
 
 ## Day07
 
@@ -1002,6 +1009,8 @@ SQL> alter session set nls_date_format='dd-MON-rr';
     END;
     ```
 
+---
+
 ## Day08
 
 ### DBEAVER 툴 사용법
@@ -1141,6 +1150,8 @@ SQL> alter session set nls_date_format='dd-MON-rr';
     - DBeaver - 물리적 테이블 생성 후 다이어그램 확인 가능. 모델링은 불가, 뷰어
     - MySQL Workbench - 논리/물리적 다이어그램 생성 가능. 생성한 그대로 DB가 됨
 
+---
+
 ## Day09
 
 ### 데이터베이스 모델링
@@ -1255,6 +1266,8 @@ SQL> alter session set nls_date_format='dd-MON-rr';
 
     ![alt text](./day09/image-7.png)
 
+---
+
 ## Day10
 
 ### 인덱스 연습 프로젝트
@@ -1263,9 +1276,10 @@ SQL> alter session set nls_date_format='dd-MON-rr';
     - 인덱스의 필요성, 성능 확인
     - 인덱스 없이 조회 느림, 인덱스 생성 시 조회 빠름
     - 아무 컬럼에나 인덱스 걸면 안 됨 → 반대로 조회 느려짐
-    - 보통 인덱스를 건다라고 이야기 함
+    - 보통 `인덱스를 건다`라고 이야기 함
 
 ### 테스트 실행 순서
 
-- 주문 테이블 생성 - ORDERS_BIG -[쿼리](./day10/1.인덱스테스트용_테이블.sql)
-- 300만건 더미테이블 생성 
+- 주문 테이블 생성 - ORDERS_BIG - [쿼리](./day10/1.인덱스테스트용_테이블.sql)
+- 300만건 더미테이블 생성 - [쿼리](./day10/2.300만건데이터.sql)
+- 인덱스 테스트 - [쿼리](./day10/3.인덱스테스트_쿼리.sql)
