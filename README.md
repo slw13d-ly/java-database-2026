@@ -419,7 +419,7 @@ SQL> alter session set nls_date_format='dd-MON-rr';
 
 ---
 
-## Day04
+## Day 04
 
 - 관계형 데이터베이스
     - 관련된 테이블을 테이블 형태로 저장하고, 테이블간 관계를 통해 데이터를 관리하는 DB모델
@@ -433,7 +433,7 @@ SQL> alter session set nls_date_format='dd-MON-rr';
     - 관계형 데이터베이스 구조를 그림으로 표현한 설계도
     - 데이터베이스를 만들기 전에 어떤 테이블이 필요하고 어떤 관계를 맺어야 하는지 시각적 표현
 
-![alt text](image.png)
+    ![alt text](./day04/image.png)
 
 - ERD 설명
     - PK - DEPT, DEPTO, EMP, EMPNO
@@ -563,9 +563,9 @@ SQL> alter session set nls_date_format='dd-MON-rr';
     - DBeaver의 경우 메뉴 데이터베이스 > 트랜잭션 모드 > `Manual Commit`으로 변경
     - 환경설정 > 연결 > 연결 유형 > `Auto-commit by default`를 해제
 
-    ![alt text](image.png)
+    ![alt text](./day05/image.png)
 
-    ![alt text](image-1.png)
+    ![alt text](./day05/image-1.png)
 
 - 트랜잭션 명령어
     - `COMMIT` - 영구 반영
