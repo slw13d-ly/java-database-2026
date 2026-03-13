@@ -36,8 +36,10 @@
 
 ### 오라클 설치 방법
 1. 로컬 설치
+
 ![alt text](day01/image-2.png)
 2. 도커 설치(클라우드 동일)
+
 ![alt text](day01/image-1.png)
 
 ### 오라클 설치 이전
